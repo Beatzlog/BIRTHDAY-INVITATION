@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Flipbook Invitation</title>
+
+<style>
+  body {
+    margin: 0;
+    background: #e5e5e5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .book {
+    position: relative;
+    width: 90vw;
+    max-width: 400px;
+    height: 70vh;
+    max-height: 600px;
+    perspective: 2000px;
+    background: linear-gradient(to right, #ddd, #bbb);
+    border-radius: 12px;
+  }
+
+  /* SMOOTHER PAGE TURN */
+  .page {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    transform-origin: left;
+    transition: transform 1s cubic-bezier(0.65, 0, 0.35, 1);
+    transform-style: preserve-3d;
+    cursor: pointer;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+  }
+
+  .page img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+    backface-visibility: hidden;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  /* REALISTIC FLIP */
+  .page.flipped {
+    transform: rotateY(-165deg);
+    box-shadow: -10px 10px 20px rgba(0,0,0,0.25);
+  }
+
+  .page:nth-child(1) { z-index: 5; }
+  .page:nth-child(2) { z-index: 4; }
+  .page:nth-child(3) { z-index: 3; }
+  .page:nth-child(4) { z-index: 2; }
+  .page:nth-child(5) { z-index: 1; }
+
+  .page-number {
+    position: absolute;
+    bottom: 10px;
+    right: 15px;
+    font-size: 14px;
+    background: rgba(255,255,255,0.6);
+    padding: 2px 6px;
+    border-radius: 5px;
+    z-index: 10;
+  }
+
+  .controls {
+    margin-top: 15px;
+  }
+
+  button {
+    padding: 10px 16px;
+    margin: 5px;
+    border: none;
+    border-radius: 8px;
+    background: #333;
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.3s;
+  }
+
+  button:hover {
+    background: #555;
+    transform: scale(1.05);
+  }
+</style>
+</head>
+
+<body>
+
+<div class="book">
+
+  <div class="page">
+    <img src="page1.jpeg" alt="Page 1">
+    <span class="page-number">1</span>
+  </div>
+
+  <div class="page">
+    <img src="page2.jpeg" alt="Page 2">
+    <span class="page-number">2</span>
+  </div>
+
+  <div class="page">
+    <img src="page3.jpeg" alt="Page 3">
+    <span class="page-number">3</span>
+  </div>
+
+  <div class="page">
+    <img src="page4.jpeg" alt="Page 4">
+    <span class="page-number">4</span>
+  </div>
+
+  <div class="page">
+    <img src="page5.jpeg" alt="Page 5">
+    <span class="page-number">5</span>
+  </div>
+
+</div>
+
+<div class="controls">
+  <button onclick="prevPage()">⬅ Prev</button>
+  <button onclick="nextPage()">Next ➡</button>
+</div>
+
+<script>
+  const pages = document.querySelectorAll(".page");
+  let current = 0;
+
+  function nextPage() {
+    if (current < pages.length) {
+      pages[current].classList.add("flipped");
+      current++;
+    }
+  }
+
+  function prevPage() {
+    if (current > 0) {
+      current--;
+      pages[current].classList.remove("flipped");
+    }
+  }
+
+  // CLICK SUPPORT
+  document.addEventListener("click", (e) => {
+    if (e.target.tagName === "IMG") {
+      nextPage();
+    }
+  });
+
+  // KEYBOARD SUPPORT
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowRight") nextPage();
+    if (e.key === "ArrowLeft") prevPage();
+  });
+
+  // SWIPE SUPPORT
+  let startX = 0;
+
+  document.addEventListener("touchstart", e => {
+    startX = e.touches[0].clientX;
+  });
+
+  document.addEventListener("touchend", e => {
+    let endX = e.changedTouches[0].clientX;
+
+    if (startX - endX > 50) nextPage();
+    if (endX - startX > 50) prevPage();
+  });
+</script>
+
+</body>
+</html>

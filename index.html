@@ -1,0 +1,186 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Flipbook Invitation</title>
+
+<style>
+  body {
+    margin: 0;
+    background: #e5e5e5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+  }
+
+  .book {
+    position: relative;
+    width: 90vw;
+    max-width: 400px;
+    aspect-ratio: 2 / 3;
+    perspective: 1500px;
+  }
+
+  .page {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    transform-origin: left;
+    transform-style: preserve-3d;
+    transition: transform 0.8s ease;
+    cursor: pointer;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    border-radius: 10px;
+  }
+
+  .page img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+    backface-visibility: hidden;
+  }
+
+  .page.flipped {
+    transform: rotateY(-180deg);
+    box-shadow: -10px 10px 25px rgba(0,0,0,0.3);
+  }
+
+  .controls {
+    margin-top: 15px;
+  }
+
+  button {
+    padding: 8px 14px;
+    margin: 5px;
+    border: none;
+    border-radius: 6px;
+    background: #333;
+    color: white;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background: #555;
+  }
+
+  .hint {
+    font-size: 13px;
+    color: #444;
+    margin-top: 8px;
+  }
+</style>
+</head>
+
+<body>
+
+<div class="book">
+  <div class="page"><img src="page1.jpg"></div>
+  <div class="page"><img src="page2.jpg"></div>
+  <div class="page"><img src="page3.jpg"></div>
+  <div class="page"><img src="page4.jpg"></div>
+  <div class="page"><img src="page5.jpg"></div>
+</div>
+
+<div class="controls">
+  <button onclick="prevPage()">⬅ Prev</button>
+  <button onclick="nextPage()">Next ➡</button>
+</div>
+
+<p class="hint">Tap, swipe, or use arrow keys</p>
+
+<!-- 🎵 BACKGROUND MUSIC -->
+<audio id="bgMusic" loop autoplay>
+  <source src="music.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+  const pages = document.querySelectorAll(".page");
+  let current = 0;
+  let isFlipping = false;
+
+  function updateZ() {
+    pages.forEach((page, i) => {
+      page.style.zIndex = pages.length - i;
+    });
+  }
+
+  function nextPage() {
+    if (current < pages.length && !isFlipping) {
+      isFlipping = true;
+
+      pages[current].classList.add("flipped");
+      pages[current].style.zIndex = current;
+
+      setTimeout(() => {
+        current++;
+        isFlipping = false;
+      }, 800);
+    }
+  }
+
+  function prevPage() {
+    if (current > 0 && !isFlipping) {
+      isFlipping = true;
+
+      current--;
+      pages[current].classList.remove("flipped");
+      pages[current].style.zIndex = pages.length - current;
+
+      setTimeout(() => {
+        isFlipping = false;
+      }, 800);
+    }
+  }
+
+  // 🎵 MUSIC SETUP
+  const music = document.getElementById("bgMusic");
+
+// set volume to 50%
+music.volume = 0.5;
+
+// try autoplay
+music.play().catch(() => {
+  console.log("Autoplay blocked, waiting for interaction");
+});
+
+// fallback: play on first click
+document.addEventListener("click", () => {
+  if (music.paused) {
+    music.play();
+  }
+}, { once: true });
+
+  // CLICK
+  document.addEventListener("click", e => {
+    if (e.target.tagName === "IMG") nextPage();
+  });
+
+  // KEYBOARD
+  document.addEventListener("keydown", e => {
+    if (e.key === "ArrowRight") nextPage();
+    if (e.key === "ArrowLeft") prevPage();
+  });
+
+  // SWIPE
+  let startX = 0;
+
+  document.addEventListener("touchstart", e => {
+    startX = e.touches[0].clientX;
+  });
+
+  document.addEventListener("touchend", e => {
+    let endX = e.changedTouches[0].clientX;
+
+    if (startX - endX > 50) nextPage();
+    if (endX - startX > 50) prevPage();
+  });
+
+  updateZ();
+</script>
+
+</body>
+</html>
